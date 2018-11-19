@@ -1,0 +1,60 @@
+# Welcome to Serverless!
+
+service: alexa-one-direction 
+
+# Had to fix a feature in alexa-skills plugin
+# Seems to be caused by lib/diffSkills.js line 12: const local = localSkills.find(skill => skill.id === remote.skillId); 
+# and remote.skillId needs to be lower case id
+
+plugins:
+  - serverless-alexa-skills
+
+custom:
+  alexa:
+    vendorId: ${env:AMAZON_VENDOR_ID}
+    clientId: ${env:AMAZON_CLIENT_ID}
+    clientSecret: ${env:AMAZON_CLIENT_SECRET}
+    skills:
+      - id: <YOUR_SKILL_ID>
+        manifest:
+          publishingInformation:
+            locales:
+              en-US:
+                name: ODFacts
+          apis:
+            custom:  
+              endpoint:
+                uri: <YOUR_LAMBDA_ARN>
+          manifestVersion: '1.0'
+        models:
+          en-US:
+            interactionModel:
+              languageModel:
+                invocationName: one direction
+                intents:
+                  - name: FactIntent
+                    samples:
+                    - 'tell me something about one direction'
+                    - 'hit me with some one direction facts'
+                    - 'a one direction fact'
+                    - 'tell me a fact'
+                    - 'give me a fact'
+                  - name: AMAZON.HelpIntent
+                    samples: []
+                  - name: AMAZON.CancelIntent
+                    samples: []
+                  - name: AMAZON.StopIntent
+                    samples: []
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+
+functions:
+  onedirection:
+    handler: handler.onedirection
+    events:
+      - alexaSkill: <YOUR_SKILL_ID>
+
